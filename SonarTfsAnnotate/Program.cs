@@ -4,21 +4,23 @@
  *
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
-using System;
-using System.IO;
-using System.Text;
-using Microsoft.TeamFoundation.Client;
-using Microsoft.TeamFoundation.VersionControl.Client;
-using System.Net;
 
 namespace SonarSource.TfsAnnotate
 {
-    class Program
+    using System;
+    using System.IO;
+    using System.Text;
+    using System.Net;
+
+    using Microsoft.TeamFoundation.VersionControl.Client;
+    using Microsoft.VisualStudio.Services.Common;
+
+    public class Program
     {
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1);
         private static Uri serverUri = null;
 
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             try
             {
@@ -33,25 +35,26 @@ namespace SonarSource.TfsAnnotate
 
                 Console.WriteLine("Enter your credentials");
                 Console.Out.Flush();
+
                 var username = Console.ReadLine();
                 var password = Console.ReadLine();
                 var pat = Console.ReadLine();
 
-                TfsClientCredentials credentials;
+                VssCredentials credentials;
 
                 if (!String.IsNullOrEmpty(pat))
                 {
-                    credentials = new TfsClientCredentials(new BasicAuthCredential(new NetworkCredential("", pat)));
+                    credentials = new VssCredentials(new VssBasicCredential(new NetworkCredential(string.Empty, pat)));
                 }
                 else if (!String.IsNullOrEmpty(username) || !String.IsNullOrEmpty(password))
                 {
-                    credentials = new TfsClientCredentials(new WindowsCredential(new NetworkCredential(username, password)));
+                    credentials = new VssCredentials(new WindowsCredential(new NetworkCredential(username, password)));
                 }
                 else
                 {
-                    credentials = new TfsClientCredentials(true);
+                    credentials = new VssCredentials(true);
                 }
-                credentials.AllowInteractive = false;
+                credentials.PromptType = CredentialPromptType.DoNotPrompt;                    
 
                 Console.WriteLine("Enter the Collection URI");
                 Console.Out.Flush();
@@ -131,7 +134,7 @@ namespace SonarSource.TfsAnnotate
                                 var state = annotatedFile.State(i);
                                 if (state != AnnotationState.COMMITTED)
                                 {
-                                    FailOnFile("line " + (i + 1) + " has not yet been checked-in (" + state + "): " + path);
+                                    FailOnFile($"line {(i + 1)} has not yet been checked-in ({state}): {path}");
                                     failed = true;
                                 }
                             }
@@ -160,7 +163,6 @@ namespace SonarSource.TfsAnnotate
                     }
                     Console.Out.Flush();
                 }
-
                 return 0;
             }
             catch(Exception e)
@@ -195,7 +197,7 @@ namespace SonarSource.TfsAnnotate
             }
             catch (UriFormatException e)
             {
-                FailOnProject("raised the following exception: " + e.Message + " Please enter the correct server URI.");
+                FailOnProject($"raised the following exception: {e.Message} Please enter the correct server URI.");
                 return false;
             }
             return true;

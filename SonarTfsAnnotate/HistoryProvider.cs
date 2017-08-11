@@ -6,14 +6,13 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.TeamFoundation.VersionControl.Client;
 
 namespace SonarSource.TfsAnnotate
 {
-    class HistoryProvider : IDisposable
+    public class HistoryProvider : IDisposable
     {
         private const int PREFETCH_SIZE = 10;
 
@@ -27,7 +26,7 @@ namespace SonarSource.TfsAnnotate
         {
             FetchChangesets(server, path, version);
 
-            for (int i = 0; i < PREFETCH_SIZE && i < this.changesets.Count; i++)
+            for (var i = 0; i < PREFETCH_SIZE && i < this.changesets.Count; i++)
             {
                 Prefetch(i);
             }
@@ -88,7 +87,7 @@ namespace SonarSource.TfsAnnotate
 
                 if (!File.Exists(filenames[current]))
                 {
-                 // The download was not successful. Move on to the next file.
+                    // The download was not successful. Move on to the next file.
                     continue;
                 }
 
@@ -110,7 +109,7 @@ namespace SonarSource.TfsAnnotate
 
         public void Dispose()
         {
-            for (int i = 0; i < changesets.Count; i++)
+            for (var i = 0; i < changesets.Count; i++)
             {
                 Dispose(i);
             }
@@ -147,36 +146,6 @@ namespace SonarSource.TfsAnnotate
             manualResetEvents[i] = new ManualResetEvent(false);
             Prefetcher prefetcher = new Prefetcher(item, filenames[i], manualResetEvents[i]);
             ThreadPool.QueueUserWorkItem(prefetcher.Prefetch);
-        }
-
-        private sealed class Prefetcher
-        {
-            private readonly Item item;
-            private readonly string filename;
-            private readonly ManualResetEvent manualResetEvent;
-
-            public Prefetcher(Item item, string filename, ManualResetEvent manualResetEvent)
-            {
-                this.item = item;
-                this.filename = filename;
-                this.manualResetEvent = manualResetEvent;
-            }
-
-            public void Prefetch(object o)
-            {
-                try
-                {
-                    item.DownloadFile(filename);
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e.Message);
-                }
-                finally
-                {
-                    manualResetEvent.Set();
-                }
-            }
-        }
+        }       
     }
 }

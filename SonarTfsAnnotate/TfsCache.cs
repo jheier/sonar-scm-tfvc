@@ -4,23 +4,26 @@
  *
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
-using Microsoft.TeamFoundation.Client;
-using Microsoft.TeamFoundation.Framework.Client;
-using Microsoft.TeamFoundation.Framework.Common;
-using Microsoft.TeamFoundation.VersionControl.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SonarSource.TfsAnnotate
-{
-    class TfsCache : IDisposable
+{   
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Microsoft.TeamFoundation.Client;
+    using Microsoft.TeamFoundation.Framework.Client;
+    using Microsoft.TeamFoundation.Framework.Common;
+    using Microsoft.TeamFoundation.VersionControl.Client;
+    using Microsoft.VisualStudio.Services.Common;
+
+    public class TfsCache : IDisposable
     {
-        private readonly TfsClientCredentials credentials;
+        private readonly VssCredentials credentials;
         private readonly IDictionary<Uri, TfsTeamProjectCollection> teamCollectionCache = new Dictionary<Uri, TfsTeamProjectCollection>();
         private readonly IDictionary<Tuple<Uri, string>, string> emailCache = new Dictionary<Tuple<Uri, string>, string>();
 
-        public TfsCache(TfsClientCredentials credentials)
+        public TfsCache(VssCredentials credentials)
         {
             this.credentials = credentials;
         }
