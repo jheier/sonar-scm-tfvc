@@ -7,10 +7,9 @@ cache:
 install:
   - ps: "[string]$mavenVersion = '3.5.0'"
   - ps: "choco install maven --version $mavenVersion --limit-output --no-progress"
-  - ps: "[string]$mavenPath = 'C:\bin\apache-maven-{0}\bin' -f $mavenVersion"
-  - ps: "$env:Path += ';' + $mavenPath"
-  - mvn --version
-  - java -version
+  - ps: "refreshenv"
+  - ps: "mvn --version"
+  - ps: "java -version"
 
 environment:
   JAVA_HOME: C:\Program Files\Java\jdk1.8.0
