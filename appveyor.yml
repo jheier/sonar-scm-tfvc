@@ -5,9 +5,10 @@ cache:
   - C:\Users\appveyor\.m2 -> **\pom.xml
 
 install:
-  - ps: "[string]$mavenVersion = \"3.5.0\""
-  - ps: "choco install maven --limit-output --version $mavenVersion"
-  - ps: "$env:Path += ;C:\bin\apache-maven-$mavenVersion\bin"
+  - ps: "[string]$mavenVersion = '3.5.0'"
+  - ps: "choco install maven --version $mavenVersion --limit-output --no-progress"
+  - ps: "[string]$mavenPath = 'C:\bin\apache-maven-{0}\bin' -f $mavenVersion"
+  - ps: "$env:Path += ';' + $mavenPath"
   - mvn --version
   - java -version
 
